@@ -1,20 +1,23 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-public class view {
+public final class view {
     private JFrame windowFrame;
     private JPanel gamePanel;
     private JPanel startingGamePanel;
-
+    private String gameDifficulity;
     public view() {
         createDisplay();
-
     }
 
     
@@ -51,9 +54,17 @@ public class view {
             JPanel difficulityOptionsPanel = new JPanel();
             {
                 JButton easyButton = new JButton("Easy");
+                easyButton.addActionListener(e -> {
+                    gameDifficulity = "easy";
+                });
                 JButton mediumButton = new JButton("Medium");
+                mediumButton.addActionListener(e -> {
+                    gameDifficulity = "medium";
+                });
                 JButton hardButton = new JButton("Hard");     
-            
+                hardButton.addActionListener(e -> {
+                    gameDifficulity = "hard";
+                });
                 difficulityOptionsPanel.add(easyButton);
                 difficulityOptionsPanel.add(mediumButton);
                 difficulityOptionsPanel.add(hardButton);
@@ -70,6 +81,7 @@ public class view {
         
         JButton startButton = new JButton("Start game");
         startButton.addActionListener(e -> {
+            mineSweeper game = new mineSweeper(gameDifficulity);
             startingGamePanel.setVisible(false);
             gameScreen();
         });
@@ -102,6 +114,18 @@ public class view {
                     for (int j = 0; j < 10; j++) {
                         JButton button = new JButton();
                         button.setPreferredSize(new Dimension(30,30));
+                        button.addMouseListener(new MouseAdapter() {
+                            @Override
+                            public void mousePressed(MouseEvent e) {
+                                if (SwingUtilities.isRightMouseButton(e)) {
+                                    // game.flag(i, j);
+                                    button.setText("F");
+                                    button.setForeground(Color.RED);
+                                } else {
+                                // game.getGameBoard(i, j);
+                                }
+                            }
+                        });
                         rowPanel.add(button);
                     }
                 }
