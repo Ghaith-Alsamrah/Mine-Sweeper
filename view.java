@@ -16,6 +16,8 @@ public final class view {
     private JPanel gamePanel;
     private JPanel startingGamePanel;
     private String gameDifficulity;
+    JButton [][] buttons;
+    mineSweeper game;
     public view() {
         createDisplay();
     }
@@ -81,7 +83,7 @@ public final class view {
         
         JButton startButton = new JButton("Start game");
         startButton.addActionListener(e -> {
-            mineSweeper game = new mineSweeper(gameDifficulity);
+            game = new mineSweeper(gameDifficulity, this);
             startingGamePanel.setVisible(false);
             gameScreen();
         });
@@ -107,26 +109,41 @@ public final class view {
         JPanel gameBoardPanel = new JPanel();
         {
             gameBoardPanel.setLayout(new BoxLayout(gameBoardPanel, BoxLayout.Y_AXIS));
-            for (int i = 0; i < 10; i++) {
+            buttons = new JButton[game.getBoardSize()][game.getBoardSize()];
+            for (int i = 0; i < game.getBoardSize(); i++) {
+                int currentRow = i;
                 JPanel rowPanel = new JPanel();
                 {
                     rowPanel.setLayout(new BoxLayout(rowPanel, BoxLayout.X_AXIS));
-                    for (int j = 0; j < 10; j++) {
-                        JButton button = new JButton();
-                        button.setPreferredSize(new Dimension(30,30));
-                        button.addMouseListener(new MouseAdapter() {
+                    for (int j = 0; j < game.getBoardSize(); j++) {
+                        int currentColumn = j;
+                        buttons [currentRow][currentColumn] = new JButton();
+                        buttons [currentRow][currentColumn].setPreferredSize(new Dimension(30,30));
+                        buttons [currentRow][currentColumn].addMouseListener(new MouseAdapter() {
                             @Override
                             public void mousePressed(MouseEvent e) {
+                                buttons [currentRow][currentColumn].setEnabled(false);
+
                                 if (SwingUtilities.isRightMouseButton(e)) {
                                     // game.flag(i, j);
-                                    button.setText("F");
-                                    button.setForeground(Color.RED);
-                                } else {
-                                // game.getGameBoard(i, j);
+                                    buttons [currentRow][currentColumn].setText("F");
+                                    buttons [currentRow][currentColumn].setForeground(Color.RED);
+                                }else if (e.getClickCount() == 2) {
+                                    game.open(currentRow, currentColumn);
+                                }else{
+                                    int cellNumber = game.getCell(currentRow, currentColumn);
+                                    switch (cellNumber) {
+                                        case 9 -> {
+                                            buttons [currentRow][currentColumn].setText("M");
+                                            buttons [currentRow][currentColumn].setForeground(Color.RED);
+                                        }
+                                        case 0 -> buttons [currentRow][currentColumn].setText("");
+                                        default -> buttons [currentRow][currentColumn].setText(String.valueOf(cellNumber));
+                                    }
                                 }
                             }
                         });
-                        rowPanel.add(button);
+                        rowPanel.add(buttons [currentRow][currentColumn]);
                     }
                 }
                 gameBoardPanel.add(rowPanel);
@@ -147,5 +164,14 @@ public final class view {
         panel.setVisible(false);
     }
 
+    public void changeTheTextOfButton (int x, int y, int number) {
+        String numberOnButton = String.valueOf(number);
+        if (number == 0) {
+            numberOnButton = "";
+        }
+        buttons[x][y].setBackground(Color.BLACK);
+        buttons[x][y].setForeground(Color.WHITE);
+        buttons[x][y].setText(numberOnButton);
 
+    }
 }
