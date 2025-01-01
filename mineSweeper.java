@@ -1,17 +1,44 @@
 
+import java.util.LinkedList;
+import java.util.Queue;
+
+class cordination {
+
+    private int x;
+    private int y;
+
+    public cordination(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+}
 
 public class mineSweeper {
-    private int [][] gameBoard; // 0-8: number of mines around, 9: mine, 10: flag 
-    private boolean [][] flags;
-    private boolean [][] opens;
+
+    private int[][] gameBoard; // 0-8: number of mines around, 9: mine, 10: flag 
+    private boolean[][] flags;
+    private boolean[][] opens;
     private view view;
+
     public mineSweeper(String size, view view) {
         this.view = view;
         int boardSize = 0;
         switch (size) {
-            case "easy" -> boardSize = 10;
-            case "medium" -> boardSize = 15;
-            case "hard" -> boardSize = 20;
+            case "easy" ->
+                boardSize = 10;
+            case "medium" ->
+                boardSize = 15;
+            case "hard" ->
+                boardSize = 20;
         }
         gameBoard = new int[boardSize][boardSize];
         flags = new boolean[boardSize][boardSize];
@@ -41,9 +68,11 @@ public class mineSweeper {
             }
         }
     }
+
     public int getCell(int x, int y) {
         return gameBoard[x][y];
     }
+
     public int getBoardSize() {
         return gameBoard.length;
     }
@@ -52,36 +81,52 @@ public class mineSweeper {
         flags[x][y] = !flags[x][y];
     }
 
-    public void openCell (int x, int y){
+    public void openCell(int x, int y) {
         opens[x][y] = true;
     }
+
     public void open(int x, int y) {
-        int counter = 0;
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (x + i - 1 >= 0 && x + i - 1 < gameBoard.length && y + j - 1 >= 0 && y + j - 1 < gameBoard.length)
-                    if (flags[x + i - 1][y + j - 1]) {
-                        counter++;
-                    }
-            }
-        }
-        if (counter == gameBoard[x][y]) {
+        Queue < cordination > queue = new LinkedList < > ();
+
+        if (canOpenAround(x, y)) {
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    if (x + i - 1 >= 0 && x + i - 1 < gameBoard.length && y + j - 1 >= 0 && y + j - 1 < gameBoard.length
-                    && x + i - 1 != x && y + j - 1 != y && !opens[x + i - 1][y + j - 1])
+                    if (isValid(x +i -1, y + j -1)){
                         if (!flags[x + i - 1][y + j - 1]) {
                             if (gameBoard[x + i - 1][y + j - 1] == 9) {
                                 System.out.println("Game Over");
-                            }else{
+                            } else {
                                 view.changeTheTextOfButton(x + i - 1, y + j - 1, gameBoard[x + i - 1][y + j - 1]);
                                 opens[x + i - 1][y + j - 1] = true;
-                                open(x + i - 1, y + j - 1);
+                                queue.add(new cordination(x + i - 1, y + j - 1));
                             }
                         }
+                    }
                 }
-            }
+        }
+        
+        while (!queue.isEmpty()){
+            open(queue.peek().getX(), queue.peek().getY());
+            queue.remove();
         }
     }
-    
+
+    }
+
+    private boolean isValid(int x, int y) {
+        return x >= 0 && x < gameBoard.length && y >= 0 && y < gameBoard.length;
+    }
+
+    private boolean canOpenAround(int x, int y) {
+        int counter = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (isValid (x + i - 1, y + j - 1) && flags[x + i - 1][y + j - 1]) {
+                        counter++;
+                    }
+            }
+            
+        }
+        return counter == gameBoard[x][y];
+    }
 }
